@@ -8,8 +8,8 @@ import 'zeppelin-solidity/contracts/token/MintableToken.sol';
  */
 contract TokenEstatePlatformToken is MintableToken {
 
-  string public constant name = "Token Estate Platform Token";
-  string public constant symbol = "TETO";
+  string public constant name = "Token Estate Platform";
+  string public constant symbol = "TEP";
   uint8 public constant decimals = 18;
 
 }
