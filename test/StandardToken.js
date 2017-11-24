@@ -6,7 +6,7 @@
 const BigNumber = web3.BigNumber
 const assertJump = require('./helpers/assertJump');
 //const expectThrow = require('./helpers/expectThrow');
-var StandardTokenMock = artifacts.require('./helpers/TokenEstatePlatformTokenMock.sol');
+var StandardTokenMock = artifacts.require('./helpers/TokenEstateMarketplaceTokenMock.sol');
 
 contract('StandardToken', function(accounts) {
 

@@ -6,7 +6,7 @@
 //import expectThrow from './helpers/expectThrow';
 // replaced by
 const assertJump = require('./helpers/assertJump');
-var MintableToken = artifacts.require('../contracts/TokenEstatePlatformToken.sol');
+var MintableToken = artifacts.require('../contracts/TokenEstateMarketplaceToken.sol');
 
 contract('Mintable', function(accounts) {
   let token;

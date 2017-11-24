@@ -1,5 +1,5 @@
-var TokenEstatePlatformToken = artifacts.require("./TokenEstatePlatformToken.sol");
+var TokenEstateMarketplaceToken = artifacts.require("./TokenEstateMarketplaceToken.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(TokenEstatePlatformToken);
+  deployer.deploy(TokenEstateMarketplaceToken);
 };

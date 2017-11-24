@@ -3,7 +3,7 @@
 
 const assertJump = require('./helpers/assertJump');
 
-var BasicTokenMock = artifacts.require("./helpers/TokenEstatePlatformTokenMock.sol");
+var BasicTokenMock = artifacts.require("./helpers/TokenEstateMarketplaceTokenMock.sol");
 
 contract('BasicToken', function(accounts) {
 

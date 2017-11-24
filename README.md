@@ -1,5 +1,5 @@
-# TEP-token
-Smart contracts for "Token Estate Platform" token sale.
+# TEM-token
+Smart contracts for "Token Estate Marketplace" token sale.
 
 We use a standard ERC20 token as the foundation for our token. We will add our business logic as we add stairs to a building.
 
