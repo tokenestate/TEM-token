@@ -7,7 +7,7 @@ import '../../contracts/TokenEstateMarketplaceToken.sol';
 // mock class using TokenEstateMarketplaceToken
 contract TokenEstateMarketplaceTokenMock is TokenEstateMarketplaceToken {
 
-  function TokenEstateMarketplaceTokenMock(address initialAccount, uint256 initialBalance) {
+  function TokenEstateMarketplaceTokenMock(address initialAccount, uint256 initialBalance) public {
     balances[initialAccount] = initialBalance;
     totalSupply = initialBalance;
   }

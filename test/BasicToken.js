@@ -1,7 +1,7 @@
 // Forked from:
 // https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/test/BasicToken.js
 
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 
 var BasicTokenMock = artifacts.require("./helpers/TokenEstateMarketplaceTokenMock.sol");
 
@@ -31,7 +31,7 @@ contract('BasicToken', function(accounts) {
       let transfer = await token.transfer(accounts[1], 101);
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -41,7 +41,7 @@ contract('BasicToken', function(accounts) {
       let transfer = await token.transfer(0x0, 100);
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 

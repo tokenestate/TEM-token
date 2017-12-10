@@ -4,7 +4,7 @@
 'use strict';
 
 const BigNumber = web3.BigNumber
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 //const expectThrow = require('./helpers/expectThrow');
 var StandardTokenMock = artifacts.require('./helpers/TokenEstateMarketplaceTokenMock.sol');
 
@@ -46,7 +46,7 @@ contract('StandardToken', function(accounts) {
       await token.transfer(accounts[1], 101);
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -71,7 +71,7 @@ contract('StandardToken', function(accounts) {
       await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
       assert.fail('should have thrown before');
     } catch (error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -82,7 +82,7 @@ contract('StandardToken', function(accounts) {
       await token.transferFrom(accounts[0], accounts[2], balance0+1, {from: accounts[1]});
       assert.fail('should have thrown before');
     } catch (error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -125,7 +125,7 @@ contract('StandardToken', function(accounts) {
       let transfer = await token.transfer(0x0, 100);
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -136,7 +136,7 @@ contract('StandardToken', function(accounts) {
       let transfer = await token.transferFrom(accounts[0], 0x0, 100, {from: accounts[1]});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 

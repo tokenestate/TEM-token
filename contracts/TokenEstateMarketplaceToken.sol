@@ -59,7 +59,7 @@ contract TokenEstateMarketplaceToken is MintableToken {
 	*/
 	function vote(bool _vote) public returns (uint256) {
         require(isVoteOngoing());
-        Voter voter = currentVotingProposal.voters[msg.sender];
+        Voter storage voter = currentVotingProposal.voters[msg.sender];
 
         uint256 nbVotes = showVotes(msg.sender); 
         require(nbVotes > 0);
@@ -110,7 +110,7 @@ contract TokenEstateMarketplaceToken is MintableToken {
 	*/
     function showVotes(address _addr) public constant returns (uint256) {
         if (isProposalActive()) {
-        	Voter voter = currentVotingProposal.voters[_addr];
+        	Voter memory voter = currentVotingProposal.voters[_addr];
         	if (voter.hasVoted) {
         		return 0;
         	}
@@ -178,9 +178,9 @@ contract TokenEstateMarketplaceToken is MintableToken {
 	* @param _addr The address to initialize.
 	* @param _balance The number of votes.
 	*/
-	function initNbVotes(address _addr, uint256 _balance) {
+	function initNbVotes(address _addr, uint256 _balance) private {
 		require(isVoteOngoing());
-		Voter voter = currentVotingProposal.voters[_addr];
+		Voter storage voter = currentVotingProposal.voters[_addr];
 		require(!voter.isNbVotesInitialized);
 		voter.isNbVotesInitialized = true;
 		voter.nbVotes = _balance;

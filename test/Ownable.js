@@ -3,7 +3,7 @@
 // https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/test/Ownable.js
 
 'use strict';
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 
 var Ownable = artifacts.require('../contracts/TokenEstateMarketplaceToken.sol');
 
@@ -35,7 +35,7 @@ contract('Ownable', function(accounts) {
       await ownable.transferOwnership(other, {from: other});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -45,7 +45,7 @@ contract('Ownable', function(accounts) {
       await ownable.transferOwnership(null, {from: originalOwner});
       assert.fail();
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 

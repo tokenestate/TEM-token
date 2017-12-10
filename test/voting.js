@@ -1,6 +1,6 @@
 'use strict';
 
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 var utils = require('./helpers/utils');
 var TEMToken = artifacts.require("./TokenEstateMarketplaceToken.sol");
 
@@ -105,7 +105,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
       await token.votingProposal("https://", "0x123", {from: accounts[0]});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });  
 
@@ -133,7 +133,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
       await token.votingProposal("", "0x123", {from: accounts[0]});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   }); 
 
@@ -143,7 +143,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
       await token.votingProposal("https://", "", {from: accounts[0]});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -153,7 +153,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
       await token.votingProposal("https://", "0x123", {from: accounts[0]});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   }); 
 

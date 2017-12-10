@@ -5,7 +5,7 @@
 
 //import expectThrow from './helpers/expectThrow';
 // replaced by
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 var MintableToken = artifacts.require('../contracts/TokenEstateMarketplaceToken.sol');
 
 contract('Mintable', function(accounts) {
@@ -50,7 +50,7 @@ contract('Mintable', function(accounts) {
     try {
       await token.mint(accounts[0], 100);
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   })
 
