@@ -1,6 +1,7 @@
 'use strict';
 
 const assertRevert = require('./helpers/assertRevert');
+const assertNotAFunction = require('./helpers/assertNotAFunction');
 var utils = require('./helpers/utils');
 var TEMToken = artifacts.require("./TokenEstateMarketplaceToken.sol");
 
@@ -205,6 +206,17 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
     let votes = await token.showVotes(accounts[0], {from: accounts[0]});
 
     assert.equal(votes, 100);
+  });
+
+  it('should return error when you call initNbVotes() private function', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await utils.initVotingProposal(token, accounts);
+    try {
+      await token.initNbVotes(accounts[1], 90, {from: accounts[0]}); 
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertNotAFunction(error);
+    }
   });
 
 });
