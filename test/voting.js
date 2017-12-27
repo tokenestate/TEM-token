@@ -190,6 +190,14 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
     assert.equal(votes, 10);
   });
 
+  it('should return 10 votes for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.transfer(accounts[1], 90, {from: accounts[0]}); 
+    let votes = await token.showVotes(accounts[0], {from: accounts[0]});
+
+    assert.equal(votes, 10);
+  });
+
   it('should return 90 votes for account 1', async function() {
     await token.mint(accounts[0], 100, {from: accounts[0]});
     await token.transfer(accounts[1], 90, {from: accounts[0]}); 
@@ -203,6 +211,45 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
     await token.mint(accounts[0], 100, {from: accounts[0]});
     await utils.initVotingProposal(token, accounts);
     await token.transfer(accounts[1], 90, {from: accounts[0]}); 
+    let votes = await token.showVotes(accounts[0], {from: accounts[0]});
+
+    assert.equal(votes, 100);
+  });
+
+  it('should return 10 votes for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    let votes = await token.showVotes(accounts[0], {from: accounts[0]});
+
+    assert.equal(votes, 10);
+  });
+
+  it('should return 10 votes for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    await utils.initVotingProposal(token, accounts);
+    let votes = await token.showVotes(accounts[0], {from: accounts[0]});
+
+    assert.equal(votes, 10);
+  });
+
+  it('should return 90 votes for account 1', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    await utils.initVotingProposal(token, accounts);
+    let votes = await token.showVotes(accounts[1], {from: accounts[1]});
+
+    assert.equal(votes, 90);
+  });
+
+  it('should return 100 votes for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await utils.initVotingProposal(token, accounts);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
     let votes = await token.showVotes(accounts[0], {from: accounts[0]});
 
     assert.equal(votes, 100);
