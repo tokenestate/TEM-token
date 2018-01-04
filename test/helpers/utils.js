@@ -1,3 +1,9 @@
+const nbSecondsInADay = 24 * 60 * 60;
+const twoWeeks = 2 * 7 * nbSecondsInADay;
+const uri = "https://";
+const hash = "0x123";
+const proposalsName = ['no', 'yes'];
+
 var Utils = {
     testMint(contract, accounts, account0, account1, account2) {
         return contract.mint(accounts[0], account0, {from: accounts[0]
@@ -52,7 +58,7 @@ var Utils = {
     },
 
     testVote(contract, accounts, voteAccount1, voteAccount2, increaseAccount2, vote1, vote2, resultAccount0) {
-        return contract.votingProposal("https://", "0x123", {
+        return contract.votingObject(uri, hash, twoWeeks, proposalsName, {
             from: accounts[0]
         }).then(function (retVal) {
             return contract.vote(vote1, {from: accounts[1]})
@@ -74,7 +80,7 @@ var Utils = {
             assert.equal(retVal.logs.length, 1, "1 event was fired from 2");
             assert.equal(retVal.logs[0].args.votes.valueOf(), voteAccount2, voteAccount2 + " votes from 2");
             module.exports.waitTwoWeeks();
-            return contract.claimVotingProposal({from: accounts[0]})
+            return contract.resetVoting({from: accounts[0]})
         }).catch((err) => { throw new Error(err) });
     },
 
@@ -100,7 +106,7 @@ var Utils = {
             from: accounts[0]
         }).then(function (retVal) {
             assert.equal(ongoing, retVal.valueOf(), "ongoing flag wrong + (" + ongoing + "," + active + "," + over + ")");
-            return contract.isProposalActive.call({from: accounts[2]})
+            return contract.isVotingObjectActive.call({from: accounts[2]})
         }).then(function (retVal) {
             assert.equal(active, retVal.valueOf(), "active flag wrong: (" + ongoing + "," + active + "," + over + ")");
             return contract.isVotingPhaseOver.call({from: accounts[1]})
@@ -110,30 +116,64 @@ var Utils = {
     },
 
     waitTwoWeeks() {
-        const twoWeeks = 2 * 7 * 24 * 60 * 60;
         web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [twoWeeks], id: 0})
     },
 
     wait90Days() {
-        const ninetyDays = 90 * 24 * 60 * 60;
+        const ninetyDays = 90 * nbSecondsInADay;
         web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [ninetyDays], id: 0})
     },
 
     wait548Days() {
-        const ninetyDays = 548 * 24 * 60 * 60;
+        const ninetyDays = 548 * nbSecondsInADay;
         web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [ninetyDays], id: 0})
     },
 
     waitNbDays(nbDays) {
-        var nbSeconds = nbDays * 24 * 60 * 60;
+        const nbSeconds = nbDays * nbSecondsInADay;
         web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [nbSeconds], id: 0})
     },
 
-    initVotingProposal(token, accounts) {
+    convertNbDaysToSeconds(nbDays) {
+        return nbDays * nbSecondsInADay;
+    },
+
+    initVotingObject(token, accounts) {  
         return token.finishMinting({from: accounts[0]
         }).then(function () {
-            return token.votingProposal("https://", "0x123", {from: accounts[0]})
+            return token.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]})
         });  
+    },
+
+    stringToHexBytes(stringToConvert) {
+        var hexChar = ["0", "1", "2", "3", "4", "5", "6", "7","8", "9", "a", "b", "c", "d", "e", "f"];
+        var result = "0x";
+        for (var i = 0; i < stringToConvert.length; i++){  
+            byteDec = stringToConvert.charCodeAt(i);
+            result += hexChar[(byteDec >> 4) & 0x0f] + hexChar[byteDec & 0x0f];
+        }
+        return result;
+    },
+
+    byteToHex(byteToConvert) {
+        var hexChar = ["0", "1", "2", "3", "4", "5", "6", "7","8", "9", "a", "b", "c", "d", "e", "f"];
+        var result = "0x";
+        for (var i = 0; i < b.length; i++){  
+            result += hexChar[(b[i] >> 4) & 0x0f] + hexChar[b[i] & 0x0f];
+        }
+        return result;
+    },
+
+    getUri() {
+        return uri;
+    },
+
+    getHash() {
+        return hash;
+    },
+
+    getProposalsName() {
+        return proposalsName;
     }
     
 }

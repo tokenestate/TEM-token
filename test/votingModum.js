@@ -1,6 +1,10 @@
 var TEMToken = artifacts.require("./TokenEstateMarketplaceToken.sol");
 var utils = require('./helpers/utils');
 
+const twoWeeks = utils.convertNbDaysToSeconds(2 * 7);
+const uri = utils.getUri();
+const hash = utils.getHash();
+const proposalsName = utils.getProposalsName();
 
 contract('TokenEstateMarketplaceToken', function (accounts) {
 
@@ -28,7 +32,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
             assert.equal(retVal.valueOf(), 0, "account 1 have 0 votes");
             return utils.testVotingPhaseStatus(contract, accounts, false, false, true);
         }).then(function (retVal) {
-            return contract.votingProposal("https://", "0x123", {from: accounts[0]});
+            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
         }).then(function () {
             return contract.transfer(accounts[1], 50, {from: accounts[0]});
         }).then(function (e) {
@@ -50,20 +54,20 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
             return contract.showVotes.call(accounts[0], {from: accounts[0]})
         }).then(function (retVal) {
             assert.equal(retVal.valueOf(), 0, "account 0 already voted, so he has 0 votes");
-            return contract.claimVotingProposal({from: accounts[0]})
+            return contract.resetVoting({from: accounts[0]})
         }).then(function (retVal) {
             assert.equal(false, 0, "voting period not over yet");
         }).catch(function (e) {
             return utils.testVotingPhaseStatus(contract, accounts, true, true, false);
         }).then(function (retVal) {
             utils.waitTwoWeeks();
-            return contract.claimVotingProposal({from: accounts[1]})
+            return contract.resetVoting({from: accounts[1]})
         }).then(function (retVal) {
-            assert.equal(false, 0, "only owner could claim voting proposal");
+            assert.equal(false, 0, "only owner could claim voting Object");
         }).catch(function (e) {
             return utils.testVotingPhaseStatus(contract, accounts, false, true, true);
         }).then(function (retVal) {
-            return contract.claimVotingProposal({from: accounts[0]})
+            return contract.resetVoting({from: accounts[0]})
         }).then(function (retVal) {
             //return utils.testTokens(contract, accounts, 9900000 - 5000, 6000, 5950, 50);
         }).then(function (retVal) {
@@ -83,7 +87,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
             utils.wait90Days();
             return utils.testVote(contract, accounts, 1001, 1000, 0, true, false, 5000 + 9900000);
         }).then(function (retVal) {
-            return contract.votingProposal("https://", "0x123", {from: accounts[0]});
+            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
         }).then(function (retVal) {
             assert.equal(false, 0, "all locked tokens used");
         }).catch(function (e) {
@@ -104,7 +108,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
             utils.wait90Days();
             return utils.testVote(contract, accounts, 1001, 1300, 0, false, true, 4700 + 9900000);
         }).then(function (retVal) {
-            return contract.votingProposal("https://", "0x123", {from: accounts[0]});
+            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
         }).then(function (retVal) {
             assert.equal(false, 0, "all locked tokens used");
         }).catch(function (e) {
@@ -118,7 +122,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
         }).then(function (retVal) {
             return utils.testMint(contract, accounts, 5000, 1001, 1000)
         }).then(function (retVal) {
-            return contract.proposal("https://", "0x123", {from: accounts[0]});
+            return contract.Object(uri, hash, {from: accounts[0]});
         }).then(function (retVal) {
             assert.equal(false, 0, "cannot vote for 0 tokens");
         }).catch(function (e) {
@@ -132,15 +136,15 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
         }).then(function (retVal) {
             return utils.testMint(contract, accounts, 5000, 1001, 1000)
         }).then(function (retVal) {
-            return utils.testVote(contract, accounts, 1001, 1000, 0, false, true, 10000);
+            return utils.testVote(contract, accounts, 1001, 1000, 0, 0, 1, 10000);
         }).then(function (retVal) {
             //voting has been declined, voting again should now fail
-            return contract.votingProposal("https://", "0x123", {from: accounts[0]});
+            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
         }).then(function (retVal) {
             assert.equal(false, 0, "voting should fail as we did not wait 90 days");
         }).catch(function (e) {
             utils.wait90Days(); //this is not enough
-            return contract.votingProposal("https://", "0x123", {from: accounts[0]});
+            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
         }).catch((err) => { throw new Error(err) });
     });
 
@@ -149,20 +153,20 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
         }).then(function (retVal) {
             return utils.testMint(contract, accounts, 5000, 1001, 1000)
         }).then(function (retVal) {
-            return utils.testVote(contract, accounts, 1001, 1000, 0, false, true, 10000);
+            return utils.testVote(contract, accounts, 1001, 1000, 0, 0, 1, 10000);
         }).then(function (retVal) {
             //voting has been declined, voting again should now fail
-            return contract.votingProposal("https://", "0x123", {from: accounts[0]});
+            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
         }).then(function (retVal) {
             assert.equal(false, 0, "voting should fail as we did not wait 90 days");
         }).catch(function (e) {
             utils.waitTwoWeeks(); //this is not enough
-            return contract.votingProposal("https://", "0x123", {from: accounts[0]});
+            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
         }).then(function (retVal) {
             assert.equal(false, 0, "voting should fail as we did not wait 90 days");
         }).catch(function (e) {
             utils.wait90Days(); //90 days is enough
-            return utils.testVote(contract, accounts, 5000, 1001, 1000, 0, true, false, 10000);
+            return utils.testVote(contract, accounts, 5000, 1001, 1000, 0, 1, 0, 10000);
         }).catch((err) => { throw new Error(err) });
     });
 
@@ -171,7 +175,7 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
         }).then(function (retVal) {
             return utils.testMint(contract, accounts, 0, 1001, 1000);
         }).then(function (retVal) {
-            return utils.testVote(contract, accounts, 1001, 1000, 0, true, false, 900000);
+            return utils.testVote(contract, accounts, 1001, 1000, 0, 1, 0, 900000);
         }).catch((err) => { throw new Error(err) });
     });
 

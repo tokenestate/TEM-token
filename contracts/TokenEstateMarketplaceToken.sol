@@ -24,55 +24,61 @@ contract TokenEstateMarketplaceToken is MintableToken {
         bool hasVoted;
     }
 
-	struct VotingProposal {
+    struct Proposal {
+        bytes32 name;   // short name (up to 32 bytes)
+        uint256 voteCount; // number of accumulated votes
+    }
+    Proposal[] public proposals;
+
+	struct VotingObject {
 	    string addr;        //Uri of voting object document
 	    bytes32 hash;       //Hash of the uri content for checking
 	    uint256 startTime;
-	    uint256 yay;
-	    uint256 nay;
+	    uint256 votingDuration;
 	    mapping(address => Voter) voters;
 	}
-	VotingProposal public currentVotingProposal;
-	
-	uint256 public constant votingDuration = 2 weeks; //TODO Proposal struct
+	VotingObject public currentVotingObject;
 
-	event Voted(address _addr, bool option, uint256 votes);
+	event Voted(address _addr, uint256 proposal, uint256 votes);
 
 	
 	/**
-	* @dev Submit a voting proposal
+	* @dev Submit a voting Object
 	* @param _addr Uri of voting object document.
 	* @param _hash Hash of the uri content.
 	*/
-	function votingProposal(string _addr, bytes32 _hash) onlyOwner public {
-        require(!isProposalActive()); // Cannot vote in parallel
+	function votingObject(string _addr, bytes32 _hash, uint votingDuration, bytes32[] proposalsName) onlyOwner public {
+        require(!isVotingObjectActive()); // Cannot vote in parallel
         require(_hash != bytes32(0)); 
         require(bytes(_addr).length > 0);
+        require(votingDuration > 0);
+        require(proposalsName.length > 0);
         require(mintingFinished);
-
-        currentVotingProposal = VotingProposal(_addr, _hash, now, 0, 0);
-
+        
+        for (uint256 i = 0; i < proposalsName.length; i++) {
+            proposals.push(Proposal({
+                name: proposalsName[i],
+                voteCount: 0
+            }));
+        }
+        currentVotingObject = VotingObject(_addr, _hash, now, votingDuration);
     }
 
 	/**
 	* @dev Send your vote
 	*/
-	function vote(bool _vote) public returns (uint256) {
+	function vote(uint proposalId) public returns (uint256) {
         require(isVoteOngoing());
-        Voter storage voter = currentVotingProposal.voters[msg.sender];
+        require(proposalId < proposals.length);
+        Voter storage voter = currentVotingObject.voters[msg.sender];
 
         uint256 nbVotes = showVotes(msg.sender); 
         require(nbVotes > 0);
 
-        if(_vote) {
-            currentVotingProposal.yay = currentVotingProposal.yay.add(nbVotes);
-        }
-        else {
-            currentVotingProposal.nay = currentVotingProposal.nay.add(nbVotes);
-        }
+        proposals[proposalId].voteCount = proposals[proposalId].voteCount.add(nbVotes);
 
         voter.hasVoted = true;
-        Voted(msg.sender, _vote, nbVotes);
+        Voted(msg.sender, proposalId, nbVotes);
         return nbVotes;
     }
 
@@ -80,18 +86,18 @@ contract TokenEstateMarketplaceToken is MintableToken {
 	* @dev Returns true if vote is ongoing, false otherwise
 	*/
     function isVoteOngoing() public constant returns (bool)  {
-        return isProposalActive()
-            && now >= currentVotingProposal.startTime
-            && now < currentVotingProposal.startTime.add(votingDuration);
+        return isVotingObjectActive()
+            && now >= currentVotingObject.startTime
+            && now < currentVotingObject.startTime.add(currentVotingObject.votingDuration);
         //its safe to use it for longer periods:
         //https://ethereum.stackexchange.com/questions/6795/is-block-timestamp-safe-for-longer-time-periods
     }
 
     /**
-	* @dev Returns true if a proposal is set, false otherwise
+	* @dev Returns true if a Object is set, false otherwise
 	*/
-    function isProposalActive() public constant returns (bool)  {
-        return currentVotingProposal.hash != bytes32(0);
+    function isVotingObjectActive() public constant returns (bool)  {
+        return currentVotingObject.hash != bytes32(0);
     }
 
     /**
@@ -101,7 +107,7 @@ contract TokenEstateMarketplaceToken is MintableToken {
     function isVotingPhaseOver() public constant returns (bool)  {
         //its safe to use it for longer periods:
         //https://ethereum.stackexchange.com/questions/6795/is-block-timestamp-safe-for-longer-time-periods
-        return now >= currentVotingProposal.startTime.add(votingDuration);
+        return now >= currentVotingObject.startTime.add(currentVotingObject.votingDuration);
     }
 
     /**
@@ -109,8 +115,8 @@ contract TokenEstateMarketplaceToken is MintableToken {
 	* @param _addr The address to enquire.
 	*/
     function showVotes(address _addr) public constant returns (uint256) {
-        if (isProposalActive()) {
-        	Voter memory voter = currentVotingProposal.voters[_addr];
+        if (isVotingObjectActive()) {
+        	Voter memory voter = currentVotingObject.voters[_addr];
         	if (voter.hasVoted) {
         		return 0;
         	}
@@ -122,13 +128,13 @@ contract TokenEstateMarketplaceToken is MintableToken {
     }
 
     /**
-	* @dev The voting can be claimed by the owner of this contract
+	* @dev The voting can be reseted by the owner of this contract
 	*/
-    function claimVotingProposal() onlyOwner public {
-        require(isProposalActive()); 
+    function resetVoting() onlyOwner public {
+        require(isVotingObjectActive()); 
         require(isVotingPhaseOver());
-
-        delete currentVotingProposal;
+        delete proposals;
+        delete currentVotingObject;
     }
 
     /**
@@ -180,7 +186,7 @@ contract TokenEstateMarketplaceToken is MintableToken {
 	*/
 	function initNbVotes(address _addr, uint256 _balance) private {
 		require(isVoteOngoing());
-		Voter storage voter = currentVotingProposal.voters[_addr];
+		Voter storage voter = currentVotingObject.voters[_addr];
 		require(!voter.isNbVotesInitialized);
 		voter.isNbVotesInitialized = true;
 		voter.nbVotes = _balance;
