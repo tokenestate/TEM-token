@@ -62,16 +62,5 @@ contract TokenEstateMarketplaceToken is MintableToken, Ballot {
 		return transferOk;
 	}
 
-	/**
-	* @dev Initialize the number of votes for an account
-	* @param addr The address to initialize.
-	* @param balance The number of votes.
-	*/
-	function initNbVotes(address addr, uint256 balance) onlyIfVoteIsOngoing private {
-		Voter storage voter = currentVotingObject.voters[addr];
-		require(!voter.isNbVotesInitialized);
-		voter.isNbVotesInitialized = true;
-		voter.nbVotes = balance;
-	}
 
 }

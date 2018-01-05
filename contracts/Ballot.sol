@@ -88,11 +88,6 @@ contract Ballot is MintableToken {
         //https://ethereum.stackexchange.com/questions/6795/is-block-timestamp-safe-for-longer-time-periods
     }
 
-    modifier onlyIfVoteIsOngoing() {
-    	require(isVoteOngoing());
-    	_;
-    }
-
     /**
 	* @dev Returns true if a Object is set, false otherwise
 	*/
@@ -142,6 +137,12 @@ contract Ballot is MintableToken {
 	* @param addr The address to initialize.
 	* @param balance The number of votes.
 	*/
-	function initNbVotes(address addr, uint256 balance) onlyIfVoteIsOngoing private;
+	function initNbVotes(address addr, uint256 balance) internal {
+		require(isVoteOngoing());
+		Voter storage voter = currentVotingObject.voters[addr];
+		require(!voter.isNbVotesInitialized);
+		voter.isNbVotesInitialized = true;
+		voter.nbVotes = balance;
+	}
 
 }
