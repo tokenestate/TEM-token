@@ -131,45 +131,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
         }).catch((err) => { throw new Error(err) });
     });
 
-    it("test 90 days blocking period", function () {
-        return TEMToken.deployed().then(function (instance) {
-        }).then(function (retVal) {
-            return utils.testMint(contract, accounts, 5000, 1001, 1000)
-        }).then(function (retVal) {
-            return utils.testVote(contract, accounts, 1001, 1000, 0, 0, 1, 10000);
-        }).then(function (retVal) {
-            //voting has been declined, voting again should now fail
-            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
-        }).then(function (retVal) {
-            assert.equal(false, 0, "voting should fail as we did not wait 90 days");
-        }).catch(function (e) {
-            utils.wait90Days(); //this is not enough
-            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
-        }).catch((err) => { throw new Error(err) });
-    });
-
-    it("test 90 days + 2 weeks blocking period", function () {
-        return TEMToken.deployed().then(function (instance) {
-        }).then(function (retVal) {
-            return utils.testMint(contract, accounts, 5000, 1001, 1000)
-        }).then(function (retVal) {
-            return utils.testVote(contract, accounts, 1001, 1000, 0, 0, 1, 10000);
-        }).then(function (retVal) {
-            //voting has been declined, voting again should now fail
-            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
-        }).then(function (retVal) {
-            assert.equal(false, 0, "voting should fail as we did not wait 90 days");
-        }).catch(function (e) {
-            utils.waitTwoWeeks(); //this is not enough
-            return contract.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
-        }).then(function (retVal) {
-            assert.equal(false, 0, "voting should fail as we did not wait 90 days");
-        }).catch(function (e) {
-            utils.wait90Days(); //90 days is enough
-            return utils.testVote(contract, accounts, 5000, 1001, 1000, 0, 1, 0, 10000);
-        }).catch((err) => { throw new Error(err) });
-    });
-
     it("milestones tests", function () {
         return TEMToken.deployed().then(function (instance) {
         }).then(function (retVal) {

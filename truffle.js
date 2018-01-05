@@ -3,7 +3,8 @@ module.exports = {
     development: {
       host: "localhost",
       port: 7545, // Ganache
-      network_id: "*" // Match any network id
+      network_id: "*", // Match any network id
+      gas: 9000000
     },
     devchain: {
       host: "172.17.0.1",
