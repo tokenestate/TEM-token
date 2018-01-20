@@ -145,6 +145,13 @@ var Utils = {
         });  
     },
 
+    initPayoutObject(token, accounts) {  
+        return token.mint(accounts[0], 100, {from: accounts[0]
+        }).then(function () {
+            return token.payoutObject(uri, hash, {value: 100, from: accounts[0]})
+        });  
+    },     
+
     stringToHexBytes(stringToConvert) {
         var hexChar = ["0", "1", "2", "3", "4", "5", "6", "7","8", "9", "a", "b", "c", "d", "e", "f"];
         var result = "0x";

@@ -3,12 +3,13 @@ pragma solidity ^0.4.18;
 import 'zeppelin-solidity/contracts/token/MintableToken.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './Ballot.sol';
+import './Payout.sol';
 
 /**
  * @title TokenEstateMarketplaceToken
- * @dev ERC20 Token that can be minted. Add voting and ...
+ * @dev ERC20 Token that can be minted. Add voting and payout capacity
  */
-contract TokenEstateMarketplaceToken is MintableToken, Ballot {
+contract TokenEstateMarketplaceToken is MintableToken, Ballot, Payout {
 	using SafeMath for uint256;
 
   	string public constant name = "Token Estate Marketplace";
