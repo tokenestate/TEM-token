@@ -13,7 +13,7 @@ const hash = utils.getHash();
 const proposalsName = utils.getProposalsName();
 
 
-contract('TokenEstateMarketplaceToken', function (accounts) {
+contract('Ballot', function (accounts) {
 
   let token;
 
@@ -112,7 +112,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
     const other = accounts[1];
     const owner = await token.owner.call();
     assert.isTrue(owner !== other);
-    await token.finishMinting({from: accounts[0]});
     try {
       await token.votingObject(uri, hash, twoWeeks, proposalsName, {from: other});
       assert.fail('should have thrown before');
@@ -122,7 +121,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   });
   
   it('should return the correct voting Object URI', async function() {
-    await token.finishMinting({from: accounts[0]});
     await token.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
     let currentVotingObject = await token.currentVotingObject();
 
@@ -130,7 +128,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   });
 
   it('should return the correct voting Object hash', async function() {
-    await token.finishMinting({from: accounts[0]});
     await token.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
     let currentVotingObject = await token.currentVotingObject();
 
@@ -139,7 +136,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
 
   it('should return the correct voting duration', async function() {
     const threeWeeks = utils.convertNbDaysToSeconds(3 * 7);
-    await token.finishMinting({from: accounts[0]});
     await token.votingObject(uri, hash, threeWeeks, proposalsName, {from: accounts[0]});
     let currentVotingObject = await token.currentVotingObject();
 
@@ -149,7 +145,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   it('should return the proposal no for 1st proposal name', async function() {
     var proposalNo = "no";
     var proposalNoToHex = utils.stringToHexBytes(proposalNo);
-    await token.finishMinting({from: accounts[0]});
     await token.votingObject(uri, hash, twoWeeks, [proposalNo, "yes"], {from: accounts[0]});
     let proposal = await token.proposals(0);
 
@@ -159,7 +154,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   it('should return the proposal yes for 2nd proposal name', async function() {
     var proposalYes = "yes";
     var proposalYesToHex = utils.stringToHexBytes(proposalYes);
-    await token.finishMinting({from: accounts[0]});
     await token.votingObject(uri, hash, twoWeeks, ["no", proposalYes], {from: accounts[0]});
     let proposal = await token.proposals(1);
 
@@ -174,7 +168,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   });
 
   it('should return error because uri is empty', async function() {
-    await token.finishMinting({from: accounts[0]});
     try {
       await token.votingObject("", hash, twoWeeks, proposalsName, {from: accounts[0]});
       assert.fail('should have thrown before');
@@ -184,7 +177,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   }); 
 
   it('should return error because voting Object hash is empty', async function() {
-    await token.finishMinting({from: accounts[0]});
     try {
       await token.votingObject(uri, "", twoWeeks, proposalsName, {from: accounts[0]});
       assert.fail('should have thrown before');
@@ -194,7 +186,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   });
 
   it('should return error because voting voting duration is 0', async function() {
-    await token.finishMinting({from: accounts[0]});
     try {
       await token.votingObject(uri, hash, 0, proposalsName, {from: accounts[0]});
       assert.fail('should have thrown before');
@@ -204,7 +195,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   });
 
   it('should return error because proposal array is empty', async function() {
-    await token.finishMinting({from: accounts[0]});
     try {
       await token.votingObject(uri, hash, twoWeeks, [], {from: accounts[0]});
       assert.fail('should have thrown before');
