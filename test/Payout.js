@@ -10,7 +10,7 @@ var TEMToken = artifacts.require("./TokenEstateMarketplaceToken.sol");
 const uri = utils.getUri();
 const hash = utils.getHash();
 const oneYear = utils.convertNbDaysToSeconds(365);
-const fiveYearsAndOneDay = utils.convertNbDaysToSeconds(365 * 5 + 1);
+const fiveYearsAndTwoDays = utils.convertNbDaysToSeconds(365 * 5 + 2);
 
 
 contract('Payout', function (accounts) {
@@ -39,7 +39,7 @@ contract('Payout', function (accounts) {
     await utils.initPayoutObject(token, accounts);
     let payoutObject = await token.payoutObjects(0);
 
-    assert.equal(payoutObject[3] - payoutObject[2], fiveYearsAndOneDay);
+    assert.equal(payoutObject[3] - payoutObject[2], fiveYearsAndTwoDays);
   });
 
   it('should return the correct total Wei allocated', async function() {
@@ -211,7 +211,7 @@ contract('Payout', function (accounts) {
 
   it('should return the payout is expired', async function() {
     await utils.initPayoutObject(token, accounts);
-    utils.waitNbDays(fiveYearsAndOneDay);
+    utils.waitNbDays(fiveYearsAndTwoDays);
     // Make a transaction to mine a block to change time
     // https://github.com/ethereumjs/testrpc/issues/336
     await token.transfer(accounts[1], 1, {from: accounts[9]}); 
@@ -316,7 +316,7 @@ contract('Payout', function (accounts) {
     await token.mint(accounts[0], 100, {from: accounts[0]});
     await token.transfer(accounts[1], 90, {from: accounts[0]}); 
     await utils.initPayoutObject(token, accounts);
-    utils.waitNbDays(fiveYearsAndOneDay);
+    utils.waitNbDays(fiveYearsAndTwoDays);
     // Make a transaction to mine a block to change time
     // https://github.com/ethereumjs/testrpc/issues/336
     await token.transfer(accounts[1], 1, {from: accounts[9]});

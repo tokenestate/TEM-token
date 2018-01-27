@@ -12,10 +12,10 @@ contract Payout is MintableToken {
 
 	using SafeMath for uint256;
 
-	// Not every year equals 365 days and not even every day has 24 hours because of leap seconds
+	// Not every year equals 365 days, because of leap year, and not even every day has 24 hours, because of leap seconds
 	// We don't need strong precision here because we want the token holders should claim his
 	// payout during min 5 years.
-	uint256 distributionTimeout = 5 years + 1 days;
+	uint256 distributionTimeout = 5 years + 2 days;
 
 	//Payout not accounted yet to make system rounding error proof
 	uint256 public rounding = 0;
@@ -132,7 +132,7 @@ contract Payout is MintableToken {
     function showNbShares(address addr, uint8 payoutId) public constant returns (uint256) {
         PayoutObject memory payout = payoutObjects[payoutId];
         if (now < payout.endTime) {
-        	Beneficiary storage beneficiary = payoutObjects[payoutId].beneficiaries[addr];
+        	Beneficiary memory beneficiary = payoutObjects[payoutId].beneficiaries[addr];
         	if (beneficiary.hasClaimed) {
         		return 0;
         	}
