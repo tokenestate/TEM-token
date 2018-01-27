@@ -229,7 +229,7 @@ contract('Payout', function (accounts) {
     }
   });
 
-  it('should prevent non-owners from calling initNbSharesForPayoutIfNeeded()', async function() {
+  it('should return error when calling initNbSharesForPayoutIfNeeded() internal function', async function() {
     await utils.initPayoutObject(token, accounts);
     try {
       await token.initNbSharesForPayoutIfNeeded(accounts[0], 10, {from: accounts[0]});
@@ -239,7 +239,7 @@ contract('Payout', function (accounts) {
     }
   });
 
-  it('should prevent non-owners from calling initNbSharesForPayout()', async function() {
+  it('should return error when calling initNbSharesForPayout() internal function', async function() {
     await utils.initPayoutObject(token, accounts);
     try {
       await token.initNbSharesForPayout(accounts[0], 10, 0, {from: accounts[0]});
@@ -264,9 +264,7 @@ contract('Payout', function (accounts) {
 
   it('should return 100 shares for account 1', async function() {
     await token.mint(accounts[1], 100, {from: accounts[0]});
-    //await token.approve(accounts[2], 100);
     await utils.initPayoutObject(token, accounts);
-    //await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
     let nbShares = await token.showNbShares(accounts[1], 0, {from: accounts[0]});
 
     assert.equal(nbShares, 100);
@@ -300,9 +298,9 @@ contract('Payout', function (accounts) {
   it('should return 100 shares for account 0', async function() {
     await token.mint(accounts[0], 100, {from: accounts[0]});
     await utils.initPayoutObject(token, accounts);
-    let nbShares = await token.showNbShares(accounts[1], 0, {from: accounts[1]});
+    let nbShares = await token.showNbShares(accounts[0], 0, {from: accounts[1]});
 
-    assert.equal(nbShares, 0);
+    assert.equal(nbShares, 100);
   });
 
   it('should return 10 shares for account 0', async function() {

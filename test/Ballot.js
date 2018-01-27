@@ -231,9 +231,9 @@ contract('Ballot', function (accounts) {
   it('should return 100 votes for account 0', async function() {
     await token.mint(accounts[0], 100, {from: accounts[0]});
     await utils.initVotingObject(token, accounts);
-    let votes = await token.showVotes(accounts[1], {from: accounts[1]});
+    let votes = await token.showVotes(accounts[0], {from: accounts[1]});
 
-    assert.equal(votes, 0);
+    assert.equal(votes, 100);
   });
 
   it('should return 10 votes for account 0', async function() {
@@ -310,7 +310,7 @@ contract('Ballot', function (accounts) {
     assert.equal(votes, 100);
   });
 
-  it('should return error when you call initNbVotes() private function', async function() {
+  it('should return error when calling initNbVotes() internal function', async function() {
     await token.mint(accounts[0], 100, {from: accounts[0]});
     await utils.initVotingObject(token, accounts);
     try {
