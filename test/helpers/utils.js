@@ -146,7 +146,7 @@ var Utils = {
     },
 
     initPayoutObject(token, accounts) {  
-        return token.mint(accounts[0], 100, {from: accounts[0]
+        return token.mint(accounts[9], 100, {from: accounts[0]
         }).then(function () {
             return token.payoutObject(uri, hash, {value: 100, from: accounts[0]})
         });  

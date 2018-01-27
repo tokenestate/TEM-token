@@ -39,9 +39,15 @@ contract TokenEstateMarketplaceToken is MintableToken, Ballot, Payout {
 		uint256 balanceFromB4Transfer = balances[msg.sender];
 		uint256 balanceToB4Transfer = balances[to];
 		bool transferOk = super.transfer(to, value);
-		if (transferOk && isVoteOngoing()) {
-			initNbVotes(msg.sender, balanceFromB4Transfer);
-			initNbVotes(to, balanceToB4Transfer);
+		if (transferOk) {
+			if (isVoteOngoing()) {
+				initNbVotes(msg.sender, balanceFromB4Transfer);
+				initNbVotes(to, balanceToB4Transfer);
+			}
+			if (hasPayout()) {
+				initNbSharesForPayoutIfNeeded(msg.sender, balanceFromB4Transfer);
+				initNbSharesForPayoutIfNeeded(to, balanceToB4Transfer);
+			}
 		}
 		return transferOk;
 	}
@@ -56,9 +62,15 @@ contract TokenEstateMarketplaceToken is MintableToken, Ballot, Payout {
 		uint256 balanceFromB4Transfer = balances[from];
 		uint256 balanceToB4Transfer = balances[to];
 		bool transferOk = super.transferFrom(from, to, value);
-		if (transferOk && isVoteOngoing()) {
-			initNbVotes(from, balanceFromB4Transfer);
-			initNbVotes(to, balanceToB4Transfer);
+		if (transferOk) {
+			if (isVoteOngoing()) {
+				initNbVotes(from, balanceFromB4Transfer);
+				initNbVotes(to, balanceToB4Transfer);
+			}
+			if (hasPayout()) {
+				initNbSharesForPayoutIfNeeded(from, balanceFromB4Transfer);
+				initNbSharesForPayoutIfNeeded(to, balanceToB4Transfer);
+			}
 		}
 		return transferOk;
 	}

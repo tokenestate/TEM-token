@@ -214,7 +214,7 @@ contract('Payout', function (accounts) {
     utils.waitNbDays(fiveYearsAndOneDay);
     // Make a transaction to mine a block to change time
     // https://github.com/ethereumjs/testrpc/issues/336
-    await token.transfer(accounts[1], 1, {from: accounts[0]}); 
+    await token.transfer(accounts[1], 1, {from: accounts[9]}); 
     let isPayoutExpired = await token.isPayoutExpired(0);
 
     assert.equal(isPayoutExpired, true);
@@ -229,5 +229,172 @@ contract('Payout', function (accounts) {
     }
   });
 
+  it('should prevent non-owners from calling initNbSharesForPayoutIfNeeded()', async function() {
+    await utils.initPayoutObject(token, accounts);
+    try {
+      await token.initNbSharesForPayoutIfNeeded(accounts[0], 10, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertNotAFunction(error);
+    }
+  });
+
+  it('should prevent non-owners from calling initNbSharesForPayout()', async function() {
+    await utils.initPayoutObject(token, accounts);
+    try {
+      await token.initNbSharesForPayout(accounts[0], 10, 0, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertNotAFunction(error);
+    }
+  });
+
+  it('should return true as a payout is defined', async function() {
+    await utils.initPayoutObject(token, accounts);
+    let hasPayout = await token.hasPayout();
+
+    assert.equal(hasPayout, true);
+  });
+
+  it('should return false as no payout is defined', async function() {
+    let hasPayout = await token.hasPayout();
+
+    assert.equal(hasPayout, false);
+  });
+
+  it('should return 100 shares for account 1', async function() {
+    await token.mint(accounts[1], 100, {from: accounts[0]});
+    //await token.approve(accounts[2], 100);
+    await utils.initPayoutObject(token, accounts);
+    //await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    let nbShares = await token.showNbShares(accounts[1], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 100);
+  });
+
+  it('should return 100 shares for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await utils.initPayoutObject(token, accounts);
+    await token.approve(accounts[2], 100);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    let nbShares = await token.showNbShares(accounts[0], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 100);
+  });
+
+  it('should return 0 share for account 0', async function() {
+    await utils.initPayoutObject(token, accounts);
+    let nbShares = await token.showNbShares(accounts[0], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 0);
+  });
+
+  it('should return 0 share for account 1', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await utils.initPayoutObject(token, accounts);
+    let nbShares = await token.showNbShares(accounts[1], 0, {from: accounts[1]});
+
+    assert.equal(nbShares, 0);
+  });
+
+  it('should return 100 shares for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await utils.initPayoutObject(token, accounts);
+    let nbShares = await token.showNbShares(accounts[1], 0, {from: accounts[1]});
+
+    assert.equal(nbShares, 0);
+  });
+
+  it('should return 10 shares for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.transfer(accounts[1], 90, {from: accounts[0]}); 
+    await utils.initPayoutObject(token, accounts);
+    let nbShares = await token.showNbShares(accounts[0], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 10);
+  });
+
+  it('should return 0 share for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.transfer(accounts[1], 90, {from: accounts[0]}); 
+    await utils.initPayoutObject(token, accounts);
+    utils.waitNbDays(fiveYearsAndOneDay);
+    // Make a transaction to mine a block to change time
+    // https://github.com/ethereumjs/testrpc/issues/336
+    await token.transfer(accounts[1], 1, {from: accounts[9]});
+    let nbShares = await token.showNbShares(accounts[0], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 0);
+  });
+
+  it('should return 90 shares for account 1', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.transfer(accounts[1], 90, {from: accounts[0]}); 
+    await utils.initPayoutObject(token, accounts);
+    let nbShares = await token.showNbShares(accounts[1], 0, {from: accounts[1]});
+
+    assert.equal(nbShares, 90);
+  });
+
+  it('should return 100 shares for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await utils.initPayoutObject(token, accounts);
+    await token.transfer(accounts[1], 90, {from: accounts[0]}); 
+    let nbShares = await token.showNbShares(accounts[0], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 100);
+  });
+
+  it('should return 10 shares for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    await utils.initPayoutObject(token, accounts);
+    let nbShares = await token.showNbShares(accounts[0], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 10);
+  });
+
+  it('should return 90 shares for account 1', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    await utils.initPayoutObject(token, accounts);
+    let nbShares = await token.showNbShares(accounts[1], 0, {from: accounts[1]});
+
+    assert.equal(nbShares, 90);
+  });
+
+  it('should return 100 shares for account 0', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await utils.initPayoutObject(token, accounts);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    let nbShares = await token.showNbShares(accounts[0], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 100);
+  });
+
+  it('should return 10 shares for account 0 and second payout', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await utils.initPayoutObject(token, accounts);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    await utils.initPayoutObject(token, accounts);
+    let nbShares = await token.showNbShares(accounts[0], 1, {from: accounts[0]});
+
+    assert.equal(nbShares, 10);
+  });
+
+  it('should return 100 shares for account 0 and second payout', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await utils.initPayoutObject(token, accounts);
+    await utils.initPayoutObject(token, accounts);
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]}); 
+    let nbShares = await token.showNbShares(accounts[0], 1, {from: accounts[0]});
+
+    assert.equal(nbShares, 100);
+  });  
   
 });

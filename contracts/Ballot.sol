@@ -138,11 +138,12 @@ contract Ballot is MintableToken {
 	* @param balance The number of votes.
 	*/
 	function initNbVotes(address addr, uint256 balance) internal {
-		require(isVoteOngoing());
-		Voter storage voter = currentVotingObject.voters[addr];
-		require(!voter.isNbVotesInitialized);
-		voter.isNbVotesInitialized = true;
-		voter.nbVotes = balance;
+		Voter memory voter = currentVotingObject.voters[addr];
+		if(!voter.isNbVotesInitialized) {
+            Voter storage _voter = currentVotingObject.voters[addr];
+    		_voter.isNbVotesInitialized = true;
+    		_voter.nbVotes = balance;
+        }
 	}
 
 }

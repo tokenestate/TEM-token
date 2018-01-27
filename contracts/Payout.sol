@@ -69,6 +69,7 @@ contract Payout is MintableToken {
 	* @dev Returns the number of Wei available per token and update rounding accordingly
 	* @param valueWei Number of Wei available for all tokens.
 	*/
+	// TODO: separate concerns and improve method name
     function nbWeiPerToken(uint256 valueWei) internal returns (uint256) {
         uint256 totalWei = valueWei.add(rounding); // add old rounding
         rounding = totalWei % totalSupply; // ensure no rounding error
@@ -77,9 +78,9 @@ contract Payout is MintableToken {
 
     /**
 	* @dev Returns true if the payout has expired
-	* @param payoutId Id of payout to check
+	* @param payoutId Id of payout to check.
 	*/
-    function isPayoutExpired(uint payoutId) onlyOwner public view returns (bool) {
+    function isPayoutExpired(uint8 payoutId) onlyOwner public view returns (bool) {
     	return payoutObjects[payoutId].endTime < now;
     }
 
@@ -88,6 +89,59 @@ contract Payout is MintableToken {
 	*/
 	function() public payable {
         revert();
+    }
+
+	/**
+	* @dev Initialize the number of shares for payout for a beneficiary if needed
+	* @param addr The address to initialize.
+	* @param balance The number of shares.
+	*/
+	function initNbSharesForPayoutIfNeeded(address addr, uint256 balance) internal {
+		for (uint8 payoutId = 0; payoutId < payoutObjects.length; payoutId++) {
+			Beneficiary memory beneficiary = payoutObjects[payoutId].beneficiaries[addr];
+			if(!beneficiary.isNbSharesInitialized) {
+				initNbSharesForPayout(addr, balance, payoutId);
+			}
+		}
+	}    
+
+    /**
+	* @dev Initialize the number of shares for payout for a beneficiary
+	* @param addr The address to initialize.
+	* @param balance The number of shares.
+	* @param payoutId Id of payout to update.
+	*/
+	function initNbSharesForPayout(address addr, uint256 balance, uint8 payoutId) internal {
+		Beneficiary storage beneficiary = payoutObjects[payoutId].beneficiaries[addr];
+		beneficiary.isNbSharesInitialized = true;
+		beneficiary.nbTokens = balance;
+	}
+
+	/**
+	* @dev Returns false if no payout Object, true otherwise
+	*/
+	function hasPayout() public view returns (bool) {
+		return payoutObjects.length > 0;
+	}
+
+	/**
+	* @dev Returns the number of shares available for an account
+	* @param addr The address to enquire.
+	* @param payoutId Id of payout to update.
+	*/
+    function showNbShares(address addr, uint8 payoutId) public constant returns (uint256) {
+        PayoutObject memory payout = payoutObjects[payoutId];
+        if (now < payout.endTime) {
+        	Beneficiary storage beneficiary = payoutObjects[payoutId].beneficiaries[addr];
+        	if (beneficiary.hasClaimed) {
+        		return 0;
+        	}
+        	if(beneficiary.isNbSharesInitialized) {        		
+            	return beneficiary.nbTokens;
+        	}
+        	return balances[addr];
+        }
+        return 0;
     }
 
 
