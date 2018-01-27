@@ -139,10 +139,7 @@ var Utils = {
     },
 
     initVotingObject(token, accounts) {  
-        return token.finishMinting({from: accounts[0]
-        }).then(function () {
-            return token.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]})
-        });  
+        return token.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
     },
 
     initPayoutObject(token, accounts) {  
