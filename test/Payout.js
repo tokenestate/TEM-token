@@ -182,26 +182,6 @@ contract('Payout', function (accounts) {
     assert.equal(payoutObject[4], totalWei + rounding - newRounding);
   });  
 
-  it('should prevent non-owners from calling isPayoutExpired()', async function() {
-    const other = accounts[1];
-    const owner = await token.owner.call();
-    assert.isTrue(owner !== other);
-    await utils.initPayoutObject(token, accounts);
-    try {
-      await token.isPayoutExpired(0, {from: other});
-      assert.fail('should have thrown before');
-    } catch(error) {
-      assertRevert(error);
-    }
-  });
-
-  it('should return the payout is not expired', async function() {
-    await utils.initPayoutObject(token, accounts);
-    let isPayoutExpired = await token.isPayoutExpired(0);
-
-    assert.equal(isPayoutExpired, false);
-  });
-
   it('should return the payout is not expired', async function() {
     await utils.initPayoutObject(token, accounts);
     let isPayoutExpired = await token.isPayoutExpired(0);
@@ -393,6 +373,94 @@ contract('Payout', function (accounts) {
     let nbShares = await token.showNbShares(accounts[0], 1, {from: accounts[0]});
 
     assert.equal(nbShares, 100);
+  });
+
+  it('should return error when claiming payout without payout available', async function() {
+    try {
+      await token.claimPayout(0, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
+  });
+
+  it('should return error when claiming payout for an expired payout', async function() {
+    await utils.initPayoutObject(token, accounts);
+    utils.waitNbDays(fiveYearsAndTwoDays);
+    // Make a transaction to mine a block to change time
+    // https://github.com/ethereumjs/testrpc/issues/336
+    await token.transfer(accounts[1], 1, {from: accounts[9]}); 
+    try {
+      await token.claimPayout(0, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
+  });
+
+  it('should return error when claiming payout with 0 share', async function() {
+    await utils.initPayoutObject(token, accounts);
+    try {
+      await token.claimPayout(0, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
+  });
+
+  it('should return error when claiming two times same payout', async function() {
+    const nbTokens = 100;
+    const totalWei = 100;
+    await token.mint(accounts[0], nbTokens, {from: accounts[0]});
+    await token.payoutObject(uri, hash, {value: totalWei, from: accounts[0]});
+    await token.claimPayout(0, {from: accounts[0]});
+    try {
+      let payoutAmount = await token.claimPayout(0, {from: accounts[0]});
+    } catch(error) {
+      assertRevert(error);
+    }
+  });  
+
+  it('should return the correct payout amount', async function() {
+    const nbTokens = 100;
+    const totalWei = 10  * 1e18;
+    let payee = accounts[1];
+    let initialBalance = web3.eth.getBalance(payee);
+    await token.mint(payee, nbTokens, {from: accounts[0]});
+    await token.payoutObject(uri, hash, {value: totalWei, from: accounts[0]});
+    
+    await token.claimPayout(0, {from: payee});
+    let balance = web3.eth.getBalance(payee);
+    assert(Math.abs(balance - initialBalance - totalWei) < 1e16);
+  });
+
+  it('should return the correct payout amount for one of multiple accounts', async function() {
+    const nbTokens = 100;
+    const totalWei = 10  * 1e18;
+    let payee = accounts[1];
+    let initialBalance = web3.eth.getBalance(payee);
+    await token.mint(payee, nbTokens/2, {from: accounts[0]});
+    await token.mint(accounts[2], nbTokens/2, {from: accounts[0]});
+    await token.payoutObject(uri, hash, {value: totalWei, from: accounts[0]});
+    
+    await token.claimPayout(0, {from: payee});
+    let balance = web3.eth.getBalance(payee);
+    assert(Math.abs(balance - initialBalance - totalWei/2) < 1e16);
+  });
+
+  it('should return the correct payout amount for 2nd payout', async function() {
+    const nbTokens = 100;
+    const totalWei1stPayout = 10;
+    const totalWei2ndPayout = 10  * 1e18;
+    let payee = accounts[1];
+    let initialBalance = web3.eth.getBalance(payee);
+    await token.mint(payee, nbTokens, {from: accounts[0]});
+    await token.payoutObject(uri, hash, {value: totalWei1stPayout, from: accounts[0]});
+    await token.payoutObject(uri, hash, {value: totalWei2ndPayout, from: accounts[0]});
+    
+    await token.claimPayout(1, {from: payee});
+    let balance = web3.eth.getBalance(payee);
+    assert(Math.abs(balance - initialBalance - totalWei2ndPayout) < 1e16);
   });  
   
 });

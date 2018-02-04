@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
-import 'zeppelin-solidity/contracts/token/MintableToken.sol';
+import 'zeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
 
 
 /**
@@ -38,6 +38,9 @@ contract Payout is MintableToken {
 	}
 	PayoutObject[] public payoutObjects;
 
+	event PayoutAvailable(string addr, bytes32 hash, uint256 startTime, uint256 endTime, uint256 totalWei, uint256 nbWeiPerToken);
+	event PayoutClaimed(address addr, uint256 nbTokens, uint256 nbWeiPerToken, uint256 amount, uint256 startTime);
+
 
 	/**
 	* @dev Submit a payout Object
@@ -52,17 +55,21 @@ contract Payout is MintableToken {
         
         uint256 _totalWei = msg.value;
         uint256 _nbWeiPerToken = nbWeiPerToken(_totalWei);
-        _totalWei = _nbWeiPerToken.mul(totalSupply); // After rounding
+        _totalWei = _nbWeiPerToken.mul(totalSupply_); // After rounding
+
+        uint256 _endTime = now.add(distributionTimeout);
 
         payoutObjects.push(PayoutObject({
         	addr: _addr,
         	hash: _hash,
         	startTime: now,
-        	endTime: now.add(distributionTimeout),
+        	endTime: _endTime,
         	totalWei: _totalWei,
         	nbWeiPerToken: _nbWeiPerToken,
         	totalWeiPayed: 0
         }));
+
+        PayoutAvailable(_addr, _hash, now, _endTime, _totalWei, _nbWeiPerToken);
     }
 
     /**
@@ -72,15 +79,15 @@ contract Payout is MintableToken {
 	// TODO: separate concerns and improve method name
     function nbWeiPerToken(uint256 valueWei) internal returns (uint256) {
         uint256 totalWei = valueWei.add(rounding); // add old rounding
-        rounding = totalWei % totalSupply; // ensure no rounding error
-        return totalWei.sub(rounding).div(totalSupply); // weiPerToken
+        rounding = totalWei % totalSupply_; // ensure no rounding error
+        return totalWei.sub(rounding).div(totalSupply_); // weiPerToken
     }
 
     /**
 	* @dev Returns true if the payout has expired
 	* @param payoutId Id of payout to check.
 	*/
-    function isPayoutExpired(uint8 payoutId) onlyOwner public view returns (bool) {
+    function isPayoutExpired(uint8 payoutId) public view returns (bool) {
     	return payoutObjects[payoutId].endTime < now;
     }
 
@@ -143,6 +150,30 @@ contract Payout is MintableToken {
         }
         return 0;
     }
+
+    function claimPayout(uint8 payoutId) payoutExist(payoutId) public {
+    	require(!isPayoutExpired(payoutId));
+		uint256 nbTokens = showNbShares(msg.sender, payoutId);
+		require(nbTokens > 0);
+			
+		PayoutObject storage payout = payoutObjects[payoutId];
+		Beneficiary storage beneficiary = payout.beneficiaries[msg.sender];
+		require(!beneficiary.hasClaimed);
+		beneficiary.hasClaimed = true;
+
+		uint256 payoutAmount = payout.nbWeiPerToken.mul(nbTokens);
+		payout.totalWeiPayed += payoutAmount;
+		require(payout.totalWeiPayed <= payout.totalWei);
+
+		PayoutClaimed(msg.sender, nbTokens, payout.nbWeiPerToken, payoutAmount, payout.startTime);
+		assert(msg.sender.send(payoutAmount));
+    }
+
+    modifier payoutExist(uint8 payoutId) {
+    	require(payoutObjects.length > payoutId);
+    	_;
+  	}
+
 
 
 }

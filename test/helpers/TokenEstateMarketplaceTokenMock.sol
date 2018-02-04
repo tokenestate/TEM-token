@@ -9,7 +9,7 @@ contract TokenEstateMarketplaceTokenMock is TokenEstateMarketplaceToken {
 
   function TokenEstateMarketplaceTokenMock(address initialAccount, uint256 initialBalance) public {
     balances[initialAccount] = initialBalance;
-    totalSupply = initialBalance;
+    totalSupply_ = initialBalance;
   }
 
 }

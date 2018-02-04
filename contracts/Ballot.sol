@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
-import 'zeppelin-solidity/contracts/token/MintableToken.sol';
+import 'zeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
 
 
 /**
@@ -32,7 +32,8 @@ contract Ballot is MintableToken {
 	}
 	VotingObject public currentVotingObject;
 
-	event Voted(address addr, uint256 proposal, uint256 votes);
+	event VotingSubmitted(string addr, bytes32 hash, uint256 startTime, uint256 votingDuration);
+    event Voted(address addr, uint256 proposal, uint256 votes);
 
 	
 	/**
@@ -56,6 +57,8 @@ contract Ballot is MintableToken {
             }));
         }
         currentVotingObject = VotingObject(addr, hash, now, votingDuration);
+
+        VotingSubmitted(addr, hash, now, votingDuration);
     }
 
 	/**
@@ -65,15 +68,17 @@ contract Ballot is MintableToken {
 	function vote(uint proposalId) public returns (uint256) {
         require(isVoteOngoing());
         require(proposalId < proposals.length);
-        Voter storage voter = currentVotingObject.voters[msg.sender];
 
         uint256 nbVotes = showVotes(msg.sender); 
         require(nbVotes > 0);
 
         proposals[proposalId].voteCount = proposals[proposalId].voteCount.add(nbVotes);
 
+        Voter storage voter = currentVotingObject.voters[msg.sender];
         voter.hasVoted = true;
+
         Voted(msg.sender, proposalId, nbVotes);
+        
         return nbVotes;
     }
 
