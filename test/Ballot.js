@@ -463,4 +463,12 @@ contract('Ballot', function (accounts) {
     assert.equal(currentVotingObject[0], uri);
   });
 
+  it('should return 0 vote for account 1 because tokens have been allocated after initVotingObject()', async function() {
+    await utils.initVotingObject(token, accounts);
+    await token.mint(accounts[1], 100, {from: accounts[0]});
+    let votes = await token.showVotes(accounts[1], {from: accounts[0]});
+
+    assert.equal(votes, 0);
+  });
+
 });

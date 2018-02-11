@@ -462,5 +462,13 @@ contract('Payout', function (accounts) {
     let balance = web3.eth.getBalance(payee);
     assert(Math.abs(balance - initialBalance - totalWei2ndPayout) < 1e16);
   });  
+
+  it('should return 0 shares for account 1 because tokens have been allocated after initPayoutObject()', async function() {
+    await utils.initPayoutObject(token, accounts);
+    await token.mint(accounts[1], 100, {from: accounts[0]});
+    let nbShares = await token.showNbShares(accounts[1], 0, {from: accounts[0]});
+
+    assert.equal(nbShares, 0);
+  });
   
 });

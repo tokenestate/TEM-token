@@ -40,14 +40,7 @@ contract TokenEstateMarketplaceToken is MintableToken, Ballot, Payout {
 		uint256 balanceToB4Transfer = balances[to];
 		bool transferOk = super.transfer(to, value);
 		if (transferOk) {
-			if (isVoteOngoing()) {
-				initNbVotes(msg.sender, balanceFromB4Transfer);
-				initNbVotes(to, balanceToB4Transfer);
-			}
-			if (hasPayout()) {
-				initNbSharesForPayoutIfNeeded(msg.sender, balanceFromB4Transfer);
-				initNbSharesForPayoutIfNeeded(to, balanceToB4Transfer);
-			}
+			saveBalanceB4Transfer(msg.sender, balanceFromB4Transfer, to, balanceToB4Transfer);
 		}
 		return transferOk;
 	}
@@ -63,17 +56,47 @@ contract TokenEstateMarketplaceToken is MintableToken, Ballot, Payout {
 		uint256 balanceToB4Transfer = balances[to];
 		bool transferOk = super.transferFrom(from, to, value);
 		if (transferOk) {
-			if (isVoteOngoing()) {
-				initNbVotes(from, balanceFromB4Transfer);
-				initNbVotes(to, balanceToB4Transfer);
-			}
-			if (hasPayout()) {
-				initNbSharesForPayoutIfNeeded(from, balanceFromB4Transfer);
-				initNbSharesForPayoutIfNeeded(to, balanceToB4Transfer);
-			}
+			saveBalanceB4Transfer(from, balanceFromB4Transfer, to, balanceToB4Transfer);
 		}
 		return transferOk;
 	}
 
+	/**
+	* @dev Save balance before a transfer
+	* @param from address The address which you want to send tokens from
+	* @param balanceFromB4Transfer uint256 the amount of tokens of address from before transfer
+	* @param to address The address which you want to transfer to
+	* @param balanceToB4Transfer uint256 the amount of tokens of address to before transfer
+	*/
+	function saveBalanceB4Transfer(address from, uint256 balanceFromB4Transfer, address to, uint256 balanceToB4Transfer) private {
+		if (isVoteOngoing()) {
+			initNbVotes(from, balanceFromB4Transfer);
+			initNbVotes(to, balanceToB4Transfer);
+		}
+		if (hasPayout()) {
+			initNbSharesForPayoutIfNeeded(from, balanceFromB4Transfer);
+			initNbSharesForPayoutIfNeeded(to, balanceToB4Transfer);
+		}
+	}
+
+	/**
+	* @dev Function to mint tokens
+	* @param to The address that will receive the minted tokens.
+	* @param amount The amount of tokens to mint.
+	* @return A boolean that indicates if the operation was successful.
+	*/
+	function mint(address to, uint256 amount) onlyOwner canMint public returns (bool) {
+		uint256 balanceToB4Mint = balances[to];
+		bool mintOk = super.mint(to, amount);
+		if (mintOk) {
+			if (isVoteOngoing()) {
+				initNbVotes(to, balanceToB4Mint);
+			}
+			if (hasPayout()) {
+				initNbSharesForPayoutIfNeeded(to, balanceToB4Mint);
+			}
+		}
+		return mintOk;
+	}
 
 }
