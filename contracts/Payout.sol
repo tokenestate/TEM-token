@@ -15,7 +15,7 @@ contract Payout is MintableToken {
 	// Not every year equals 365 days, because of leap year, and not even every day has 24 hours, because of leap seconds
 	// We don't need strong precision here because we want the token holders should claim his
 	// payout during min 5 years.
-	uint256 distributionTimeout = 5 years + 2 days;
+	uint256 public payoutTimeout = 5 years + 2 days;
 
 	//Payout not accounted yet to make system rounding error proof
 	uint256 public rounding = 0;
@@ -57,7 +57,7 @@ contract Payout is MintableToken {
         uint256 _nbWeiPerToken = nbWeiPerToken(_totalWei);
         _totalWei = _nbWeiPerToken.mul(totalSupply_); // After rounding
 
-        uint256 _endTime = now.add(distributionTimeout);
+        uint256 _endTime = now.add(payoutTimeout);
 
         payoutObjects.push(PayoutObject({
         	addr: _addr,
@@ -193,6 +193,15 @@ contract Payout is MintableToken {
   		require(withdrawAmount > 0);
 
   		assert(owner.send(withdrawAmount));
+  	}
+
+  	/**
+	* @dev Set timeout for payout
+	* @param _payoutTimeout Timeout for expired payout.
+	*/
+  	function setPayoutTimeout(uint256 _payoutTimeout) onlyOwner public {
+  		require(_payoutTimeout > 1 years);
+    	payoutTimeout = _payoutTimeout;
   	}
 
 }

@@ -530,6 +530,34 @@ contract('Payout', function (accounts) {
     let balance = web3.eth.getBalance(payee);
     assert(Math.abs(balance - initialBalance - totalWei) < 1e16);
   });
+
+  it('should prevent non-owners from calling setPayoutTimeout()', async function() {
+    const other = accounts[1];
+    const owner = await token.owner.call();
+    assert.isTrue(owner !== other);
+    try {
+      await token.setPayoutTimeout(0, {from: other})
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
+  });
+
+  it('should return error when payout time < 1 one year', async function() {
+    try {
+      await token.setPayoutTimeout(oneYear, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
+  });
+
+  it('should return the correct payout timeout', async function() {
+    const _payoutTimeout = oneYear + 1;
+    await token.setPayoutTimeout(_payoutTimeout, {from: accounts[0]});
+    let payoutTimeout = await token.payoutTimeout();
+    assert.equal(payoutTimeout, _payoutTimeout);
+  });
   
   
 });
