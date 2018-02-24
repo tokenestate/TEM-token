@@ -151,6 +151,10 @@ contract Payout is MintableToken {
         return 0;
     }
 
+    /**
+	* @dev Send payout amount on caller address
+	* @param payoutId Id of claimed payout.
+	*/
     function claimPayout(uint8 payoutId) payoutExist(payoutId) public {
     	require(!isPayoutExpired(payoutId));
 		uint256 nbTokens = showNbShares(msg.sender, payoutId);
@@ -169,11 +173,26 @@ contract Payout is MintableToken {
 		assert(msg.sender.send(payoutAmount));
     }
 
+    /**
+	* @dev Throws if paout doesn't exist
+	* @param payoutId Id of claimed payout.
+	*/
     modifier payoutExist(uint8 payoutId) {
     	require(payoutObjects.length > payoutId);
     	_;
   	}
 
+  	/**
+	* @dev Send non claimed payout amount to the contract owner address
+	* @param payoutId Id of expired payout.
+	*/
+  	function withdrawExpiredPayout(uint8 payoutId) onlyOwner payoutExist(payoutId) public {
+  		require(isPayoutExpired(payoutId));
+  		PayoutObject storage payout = payoutObjects[payoutId];
+  		uint256 withdrawAmount = payout.totalWei - payout.totalWeiPayed;
+  		require(withdrawAmount > 0);
 
+  		assert(owner.send(withdrawAmount));
+  	}
 
 }
