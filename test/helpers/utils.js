@@ -80,7 +80,6 @@ var Utils = {
             assert.equal(retVal.logs.length, 1, "1 event was fired from 2");
             assert.equal(retVal.logs[0].args.votes.valueOf(), voteAccount2, voteAccount2 + " votes from 2");
             module.exports.waitTwoWeeks();
-            return contract.resetVoting({from: accounts[0]})
         }).catch((err) => { throw new Error(err) });
     },
 
