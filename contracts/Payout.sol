@@ -191,6 +191,7 @@ contract Payout is MintableToken {
   		PayoutObject storage payout = payoutObjects[payoutId];
   		uint256 withdrawAmount = payout.totalWei - payout.totalWeiPayed;
   		require(withdrawAmount > 0);
+  		payout.totalWeiPayed += withdrawAmount;
 
   		assert(owner.send(withdrawAmount));
   	}

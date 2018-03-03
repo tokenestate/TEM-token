@@ -375,6 +375,18 @@ contract('Payout', function (accounts) {
     assert.equal(nbShares, 100);
   });
 
+  it('should return 100 shares for account 0 and second payout', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await token.approve(accounts[2], 100);
+    await utils.initPayoutObject(token, accounts);
+    await utils.initPayoutObject(token, accounts);
+    await token.claimPayout(0, {from: accounts[0]});
+    await token.transferFrom(accounts[0], accounts[1], 90, {from: accounts[2]});
+    let nbShares = await token.showNbShares(accounts[0], 1, {from: accounts[0]});
+
+    assert.equal(nbShares, 100);
+  });
+
   it('should return error when claiming payout without payout available', async function() {
     try {
       await token.claimPayout(0, {from: accounts[0]});
@@ -525,10 +537,27 @@ contract('Payout', function (accounts) {
     utils.waitNbDays(fiveYearsAndTwoDays);
     // Make a transaction to mine a block to change time
     // https://github.com/ethereumjs/testrpc/issues/336
+    await token.transfer(accounts[1], 1, {from: accounts[0]}); 
     let initialBalance = web3.eth.getBalance(payee);
     await token.withdrawExpiredPayout(0, {from: payee});
     let balance = web3.eth.getBalance(payee);
     assert(Math.abs(balance - initialBalance - totalWei) < 1e16);
+  });
+
+  it('should return totalWeiPayed equal to totalWei after withdrawing expired payout', async function() {
+    const nbTokens = 100;
+    const totalWei = 10  * 1e18;
+    let payee = accounts[0];
+    await token.mint(payee, nbTokens, {from: accounts[0]});
+    await token.payoutObject(uri, hash, {value: totalWei, from: accounts[0]});
+    utils.waitNbDays(fiveYearsAndTwoDays);
+    // Make a transaction to mine a block to change time
+    // https://github.com/ethereumjs/testrpc/issues/336
+    await token.transfer(accounts[1], 1, {from: accounts[0]}); 
+    await token.withdrawExpiredPayout(0, {from: payee});
+    let payoutObject = await token.payoutObjects(0);
+    
+    assert(payoutObject[4], payoutObject[6]);
   });
 
   it('should prevent non-owners from calling setPayoutTimeout()', async function() {
@@ -542,6 +571,21 @@ contract('Payout', function (accounts) {
       assertRevert(error);
     }
   });
+
+  it('should return error when withdraw two time same expired amount', async function() {
+    await utils.initPayoutObject(token, accounts);
+    utils.waitNbDays(fiveYearsAndTwoDays);
+    // Make a transaction to mine a block to change time
+    // https://github.com/ethereumjs/testrpc/issues/336
+    await token.transfer(accounts[1], 1, {from: accounts[9]}); 
+    await token.withdrawExpiredPayout(0, {from: accounts[0]});
+    try {
+      await token.withdrawExpiredPayout(0, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
+  });  
 
   it('should return error when payout time < 1 one year', async function() {
     try {
