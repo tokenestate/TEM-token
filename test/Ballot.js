@@ -19,6 +19,7 @@ contract('Ballot', function (accounts) {
 
   beforeEach(async function() {
     token = await TEMToken.new();
+    await utils.initWhitelist(token, accounts);
   });
 
   it('should return false as vote is not ongoing', async function() {
@@ -413,6 +414,18 @@ contract('Ballot', function (accounts) {
     let proposal = await token.votingProposals(1,0);
 
     assert.equal(proposal[0].substring(0,proposalCoolToHex.length), proposalCoolToHex);
+  });
+
+  it('should return error when voting account is not whitelisted', async function() {
+    await token.mint(accounts[0], 100, {from: accounts[0]});
+    await utils.initVotingObject(token, accounts);
+    await token.removeFromWhitelist(accounts[0], {from: accounts[0]});
+    try {
+      await token.vote(0, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
   });
 
 });

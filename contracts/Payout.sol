@@ -2,13 +2,14 @@ pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
+import './Whitelist.sol';
 
 
 /**
  * @title Payout
  * @dev Payout capacity: eth sent to this contract (by Tokenestate) will be distributed to their token holders 
  */
-contract Payout is MintableToken {
+contract Payout is MintableToken, Whitelist {
 
 	using SafeMath for uint256;
 
@@ -155,7 +156,7 @@ contract Payout is MintableToken {
 	* @dev Send payout amount on caller address
 	* @param payoutId Id of claimed payout.
 	*/
-    function claimPayout(uint8 payoutId) payoutExist(payoutId) public {
+    function claimPayout(uint8 payoutId) payoutExist(payoutId) isWhitelisted(msg.sender) public {
     	require(!isPayoutExpired(payoutId));
 		uint256 nbTokens = showNbShares(msg.sender, payoutId);
 		require(nbTokens > 0);

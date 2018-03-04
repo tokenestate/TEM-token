@@ -37,7 +37,11 @@ var Utils = {
         }).then(function () {
             return token.payoutObject(uri, hash, {value: 100, from: accounts[0]})
         });  
-    },     
+    },   
+
+    initWhitelist(token, accounts) {  
+        return token.addManyToWhitelist([accounts[0], accounts[1], accounts[2], accounts[9]], {from: accounts[0]});
+    },
 
     stringToHexBytes(stringToConvert) {
         var hexChar = ["0", "1", "2", "3", "4", "5", "6", "7","8", "9", "a", "b", "c", "d", "e", "f"];

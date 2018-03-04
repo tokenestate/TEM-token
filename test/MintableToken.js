@@ -28,6 +28,7 @@ contract('Mintable', function(accounts) {
   });
 
   it('should mint a given amount of tokens to a given address', async function() {
+    await token.addToWhitelist(accounts[0]);
     const result = await token.mint(accounts[0], 100);
     assert.equal(result.logs[0].event, 'Mint');
     assert.equal(result.logs[0].args.to.valueOf(), accounts[0]);

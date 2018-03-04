@@ -19,6 +19,7 @@ contract('Payout', function (accounts) {
 
   beforeEach(async function() {
     token = await TEMToken.new();
+    await utils.initWhitelist(token, accounts);
   });
   
   it('should return the correct payout Object URI', async function() {
@@ -603,5 +604,18 @@ contract('Payout', function (accounts) {
     assert.equal(payoutTimeout, _payoutTimeout);
   });
   
-  
+  it('should return error when account claiming payout is not in whitelist ', async function() {
+    const nbTokens = 100;
+    const totalWei = 100;
+    await token.mint(accounts[0], nbTokens, {from: accounts[0]});
+    await token.payoutObject(uri, hash, {value: totalWei, from: accounts[0]});
+    await token.removeFromWhitelist(accounts[0], {from: accounts[0]});
+    try {
+      await token.claimPayout(0, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
+  });
+
 });

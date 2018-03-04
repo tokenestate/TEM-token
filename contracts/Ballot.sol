@@ -2,13 +2,14 @@ pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
+import './Whitelist.sol';
 
 
 /**
  * @title Ballot
  * @dev Voting capacity 
  */
-contract Ballot is MintableToken {
+contract Ballot is MintableToken, Whitelist {
 	using SafeMath for uint256;
 
 	struct Voter {
@@ -73,7 +74,7 @@ contract Ballot is MintableToken {
 	* @dev Send your vote
 	* @param proposalId The proposal id you vote for.
 	*/
-	function vote(uint proposalId) public returns (uint256) {
+	function vote(uint proposalId) isWhitelisted(msg.sender) public returns (uint256) {
         require(isVoteOngoing());
         
         uint256 nbVotes = showVotes(msg.sender); 
