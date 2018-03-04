@@ -7,17 +7,19 @@ import './Payout.sol';
 
 /**
  * @title TokenEstateMarketplaceToken
- * @dev ERC20 Token that can be minted. Add voting and payout capacity
+ * @dev ERC20 Token that can be minted. Add a total supply limit (hard cap), voting and payout capacity
  */
 contract TokenEstateMarketplaceToken is MintableToken, Ballot, Payout {
 	using SafeMath for uint256;
 
   	string public constant name = "Token Estate Marketplace";
 	string public constant symbol = "TEM";
-	uint8 public constant decimals = 18;
+	uint8 public constant decimals = 4;
 
 
 	string public companyURI = "https://www.tokenestate.io";
+
+	uint256 public cap = 150000000;
 
 	
 
@@ -86,6 +88,7 @@ contract TokenEstateMarketplaceToken is MintableToken, Ballot, Payout {
 	* @return A boolean that indicates if the operation was successful.
 	*/
 	function mint(address to, uint256 amount) onlyOwner canMint public returns (bool) {
+		require(totalSupply_.add(amount) <= cap);
 		uint256 balanceToB4Mint = balances[to];
 		bool mintOk = super.mint(to, amount);
 		if (mintOk) {

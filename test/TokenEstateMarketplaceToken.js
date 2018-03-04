@@ -44,4 +44,21 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
     assert.equal(companyURI, uri);
   });
 
+  it('should return the correct number of token', async function() {
+    const nbTokens = 150000000;
+    await token.mint(accounts[1], nbTokens, {from: accounts[0]});
+    let balance = await token.balanceOf(accounts[1]);
+
+    assert.equal(balance, nbTokens);
+  });
+
+  it('should return error when cap is exceeded', async function() {
+    try {
+      await token.mint(accounts[1], 150000001, {from: accounts[0]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertRevert(error);
+    }
+  });
+
 });
