@@ -46,7 +46,6 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
 
   it('should return the correct number of token', async function() {
     const nbTokens = 150000000;
-    await token.addToWhitelist(accounts[1]);
     await token.mint(accounts[1], nbTokens, {from: accounts[0]});
     let balance = await token.balanceOf(accounts[1]);
 
@@ -54,18 +53,8 @@ contract('TokenEstateMarketplaceToken', function (accounts) {
   });
 
   it('should return error when cap is exceeded', async function() {
-    await token.addToWhitelist(accounts[1]);
     try {
       await token.mint(accounts[1], 150000001, {from: accounts[0]});
-      assert.fail('should have thrown before');
-    } catch(error) {
-      assertRevert(error);
-    }
-  });
-
-  it('should return error when minted account is not in whitelist', async function() {
-    try {
-      await token.mint(accounts[1], 1, {from: accounts[0]});
       assert.fail('should have thrown before');
     } catch(error) {
       assertRevert(error);

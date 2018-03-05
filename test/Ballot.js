@@ -428,4 +428,26 @@ contract('Ballot', function (accounts) {
     }
   });
 
+  it('should broadcast an event when submiting votingObject', async function() {  
+    const result = await token.votingObject(uri, hash, twoWeeks, proposalsName, {from: accounts[0]});
+    assert.equal(result.logs[0].event, 'VotingSubmitted');
+    assert.equal(result.logs[0].args.addr.valueOf(), uri);
+    assert.equal(result.logs[0].args.hash.valueOf().substring(0,hash.length), hash);
+    assert.equal(result.logs[0].args.endTime.valueOf() - result.logs[0].args.startTime.valueOf(), twoWeeks);
+    assert.equal(result.logs[0].args.votingId.valueOf(), 0);
+  });
+
+  it('should broadcast an event when submiting a vote', async function() {
+    const proposalId = 1;
+    const nbTokens = 100;
+    await token.mint(accounts[0], nbTokens, {from: accounts[0]});
+    await utils.initVotingObject(token, accounts);
+    const result = await token.vote(proposalId, {from: accounts[0]});
+    assert.equal(result.logs[0].event, 'Voted');
+    assert.equal(result.logs[0].args.addr.valueOf(), accounts[0]);
+    assert.equal(result.logs[0].args.proposalId.valueOf(), proposalId);
+    assert.equal(result.logs[0].args.nbVotes.valueOf(), nbTokens);
+    assert.equal(result.logs[0].args.votingId.valueOf(), 0);
+  });
+
 });

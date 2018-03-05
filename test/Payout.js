@@ -618,4 +618,32 @@ contract('Payout', function (accounts) {
     }
   });
 
+  it('should broadcast an event when submiting a payout', async function() {
+    const nbTokens = 100;
+    const totalWei = 100;
+    await token.mint(accounts[0], nbTokens, {from: accounts[0]});
+    const result = await token.payoutObject(uri, hash, {value: totalWei, from: accounts[0]});
+    assert.equal(result.logs[0].event, 'PayoutAvailable');
+    assert.equal(result.logs[0].args.addr.valueOf(), uri);
+    assert.equal(result.logs[0].args.hash.valueOf().substring(0,hash.length), hash);
+    assert.equal(result.logs[0].args.endTime.valueOf() - result.logs[0].args.startTime.valueOf(), fiveYearsAndTwoDays);
+    assert.equal(result.logs[0].args.totalWei.valueOf(), totalWei);
+    assert.equal(result.logs[0].args.nbWeiPerToken.valueOf(), totalWei / nbTokens);
+    assert.equal(result.logs[0].args.payoutId.valueOf(), 0);
+  });
+
+  it('should broadcast an event when claiming a payout', async function() {
+    const nbTokens = 100;
+    const totalWei = 100;
+    await token.mint(accounts[0], nbTokens, {from: accounts[0]});
+    await token.payoutObject(uri, hash, {value: totalWei, from: accounts[0]});
+    const result = await token.claimPayout(0, {from: accounts[0]});
+    assert.equal(result.logs[0].event, 'PayoutClaimed');
+    assert.equal(result.logs[0].args.addr.valueOf(), accounts[0]);
+    assert.equal(result.logs[0].args.nbTokens.valueOf(), nbTokens);
+    assert.equal(result.logs[0].args.nbWeiPerToken.valueOf(), totalWei / nbTokens);
+    assert.equal(result.logs[0].args.amount.valueOf(), nbTokens);
+    assert.equal(result.logs[0].args.payoutId.valueOf(), 0);
+  });
+
 });

@@ -10,7 +10,7 @@ import './Whitelist.sol';
  * @title TokenEstateMarketplaceToken
  * @dev ERC20 Token that can be minted. Add a total supply limit (hard cap), voting and payout capacity
  */
-contract TokenEstateMarketplaceToken is MintableToken, Whitelist, Ballot, Payout {
+contract TokenEstateMarketplaceToken is MintableToken, Ballot, Payout {
 	using SafeMath for uint256;
 
   	string public constant name = "Token Estate Marketplace";
@@ -88,7 +88,7 @@ contract TokenEstateMarketplaceToken is MintableToken, Whitelist, Ballot, Payout
 	* @param amount The amount of tokens to mint.
 	* @return A boolean that indicates if the operation was successful.
 	*/
-	function mint(address to, uint256 amount) onlyOwner canMint isWhitelisted(to) public returns (bool) {
+	function mint(address to, uint256 amount) onlyOwner canMint public returns (bool) {
 		require(totalSupply_.add(amount) <= cap);
 		uint256 balanceToB4Mint = balances[to];
 		bool mintOk = super.mint(to, amount);

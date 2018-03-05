@@ -33,9 +33,8 @@ contract Ballot is MintableToken, Whitelist {
 	}
     VotingObject[] public votingObjects;
 
-	event VotingSubmitted(string addr, bytes32 hash, uint256 startTime, uint256 endTime);
-    event Voted(address addr, uint256 proposal, uint256 votes);
-    event Log(string log);
+	event VotingSubmitted(string addr, bytes32 hash, uint256 startTime, uint256 endTime, uint256 votingId);
+    event Voted(address addr, uint256 proposalId, uint256 nbVotes, uint256 votingId);
 
 	
 	/**
@@ -67,7 +66,7 @@ contract Ballot is MintableToken, Whitelist {
             }));
         }
 
-        VotingSubmitted(_addr, _hash, now, now + _votingDuration);
+        VotingSubmitted(_addr, _hash, now, now + _votingDuration, votingObjects.length-1);
     }
 
 	/**
@@ -88,7 +87,7 @@ contract Ballot is MintableToken, Whitelist {
         Voter storage voter = votingObjects[votingObjects.length-1].voters[msg.sender];
         voter.hasVoted = true;
 
-        Voted(msg.sender, proposalId, nbVotes);
+        Voted(msg.sender, proposalId, nbVotes, votingObjects.length-1);
         
         return nbVotes;
     }

@@ -39,8 +39,8 @@ contract Payout is MintableToken, Whitelist {
 	}
 	PayoutObject[] public payoutObjects;
 
-	event PayoutAvailable(string addr, bytes32 hash, uint256 startTime, uint256 endTime, uint256 totalWei, uint256 nbWeiPerToken);
-	event PayoutClaimed(address addr, uint256 nbTokens, uint256 nbWeiPerToken, uint256 amount, uint256 startTime);
+	event PayoutAvailable(string addr, bytes32 hash, uint256 startTime, uint256 endTime, uint256 totalWei, uint256 nbWeiPerToken, uint256 payoutId);
+	event PayoutClaimed(address addr, uint256 nbTokens, uint256 nbWeiPerToken, uint256 amount, uint256 payoutId);
 
 
 	/**
@@ -70,7 +70,7 @@ contract Payout is MintableToken, Whitelist {
         	totalWeiPayed: 0
         }));
 
-        PayoutAvailable(_addr, _hash, now, _endTime, _totalWei, _nbWeiPerToken);
+        PayoutAvailable(_addr, _hash, now, _endTime, _totalWei, _nbWeiPerToken, payoutObjects.length-1);
     }
 
     /**
@@ -170,7 +170,7 @@ contract Payout is MintableToken, Whitelist {
 		payout.totalWeiPayed += payoutAmount;
 		require(payout.totalWeiPayed <= payout.totalWei);
 
-		PayoutClaimed(msg.sender, nbTokens, payout.nbWeiPerToken, payoutAmount, payout.startTime);
+		PayoutClaimed(msg.sender, nbTokens, payout.nbWeiPerToken, payoutAmount, payoutId);
 		assert(msg.sender.send(payoutAmount));
     }
 
