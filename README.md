@@ -13,7 +13,7 @@ If you find a security issue, please email security@tokenestate.io.
 
 ## Tools
 - [Node.js v8.9.3](https://nodejs.org/) 
-- [Truffle v4.0.4](http://truffleframework.com/)
+- [Truffle v4.0.6](http://truffleframework.com/)
 - [Ganache v1.0.1](http://truffleframework.com/ganache/)
 
 ## License
