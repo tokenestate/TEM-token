@@ -1,15 +1,13 @@
 <img src="https://raw.githubusercontent.com/Tokenestate/Tokenestate.github.io/master/Tokenestate.io.logo.png" width=500/>
 
 # TEM-token
-Smart contracts for "Token Estate Marketplace" token sale.
-
-We use a standard ERC20 token as the foundation for our token. We will add our business logic as we add stairs to a building.
+Smart contract for the "Token Estate" token sale. On top of the standard ERC20 standard, which is the foundation of the TEM-token, we have added a dividend payment reflecting the stake of the token holder
 
 ## Testing
-The testing framework is [Truffle](http://truffleframework.com/), the Ethereum Swiss Army knife. We took over all the ERC20 standard token tests to be sure our modifications will not impact it. 
+The testing framework is [Truffle](http://truffleframework.com/). Our tests folder includes the ERC20 standard tests to prevent from any regression
 
 ## Security
-We believe using secure, tested and community-audited code is the right way to build a great and secure application. It's why we use [OpenZeppelin](https://github.com/OpenZeppelin/zeppelin-solidity) library as a foundation for writing secure token Smart Contracts on Ethereum.
+We believe using secure, tested and community-audited code is the right way to build a great and secure application. This is why we use the [OpenZeppelin](https://github.com/OpenZeppelin/zeppelin-solidity) library 
 
 If you find a security issue, please email security@tokenestate.io.
 
