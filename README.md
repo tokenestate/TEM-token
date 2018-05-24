@@ -1,3 +1,5 @@
+[![Logo](https://github.com/tokenestate/tokenestate.github.io/Logo.png)](https://tokenestate.io/)
+
 # TEM-token
 Smart contracts for "Token Estate Marketplace" token sale.
 
