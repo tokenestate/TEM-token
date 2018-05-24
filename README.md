@@ -11,6 +11,9 @@ We believe that using secure, tested and community-audited code is the right way
 
 If you find a security issue, please email security@tokenestate.io.
 
+## Audit
+As per best practise our code is audited by other independent experts
+
 ## Tools
 - [Node.js v8.9.3](https://nodejs.org/) 
 - [Truffle v4.0.6](http://truffleframework.com/)
