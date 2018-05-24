@@ -1,4 +1,4 @@
-[![Logo](https://raw.githubusercontent.com/Tokenestate/Tokenestate.github.io/master/Tokenestate.io.logo.png)](https://tokenestate.io/)
+<img src="https://raw.githubusercontent.com/Tokenestate/Tokenestate.github.io/master/Tokenestate.io.logo.png" width=500/>
 
 # TEM-token
 Smart contracts for "Token Estate Marketplace" token sale.
