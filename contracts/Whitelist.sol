@@ -10,6 +10,9 @@ contract Whitelist is Ownable {
 
 	mapping(address => bool) public whitelist;
 
+    event LogAddToWhilelist(address indexed sender, address indexed beneficiary);
+    event LogRemoveFromWhilelist(address indexed sender, address indexed beneficiary);
+
     /**
     * @dev Reverts if beneficiary is not whitelisted. Can be used when extending this contract.
     */
@@ -23,7 +26,9 @@ contract Whitelist is Ownable {
     * @param _beneficiary Address to be added to the whitelist
     */
     function addToWhitelist(address _beneficiary) external onlyOwner {
+        require (_beneficiary != 0x0);
         whitelist[_beneficiary] = true;
+        LogAddToWhilelist(msg.sender, beneficiary);
     }
 
     /**
@@ -32,7 +37,7 @@ contract Whitelist is Ownable {
     */
     function addManyToWhitelist(address[] _beneficiaries) external onlyOwner {
         for (uint256 i = 0; i < _beneficiaries.length; i++) {
-            whitelist[_beneficiaries[i]] = true;
+            addToWhitelist(beneficiaries[i]]);
         }
     }
 
@@ -42,6 +47,7 @@ contract Whitelist is Ownable {
     */
     function removeFromWhitelist(address _beneficiary) external onlyOwner {
         whitelist[_beneficiary] = false;
+        LogRemoveFromWhilelist(msg.sender, beneficiary);
     }
 
 }
