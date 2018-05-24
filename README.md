@@ -7,9 +7,9 @@ Smart contract for the "Token Estate" token sale. On top of the standard ERC20 s
 The testing framework is [Truffle](http://truffleframework.com/). Our tests folder includes the ERC20 standard tests to prevent from any regression
 
 ## Security
-We believe that using secure, tested and community-audited code is the right way to develop smart contracts on Ethereum. This is why we use the [OpenZeppelin](https://github.com/OpenZeppelin/zeppelin-solidity) library 
+We believe that reusing community-audited code as far as possible is the right way to develop smart contracts on Ethereum. This is why we use the [OpenZeppelin](https://github.com/OpenZeppelin/zeppelin-solidity) library 
 
-If you find a security issue, please email security@tokenestate.io.
+Should you find a security issue, please email security@tokenestate.io.
 
 ## Audit
 As per best practise our code is audited by other independent experts
