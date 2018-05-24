@@ -12,7 +12,7 @@ We believe that reusing community-audited code as far as possible is the right w
 Should you find a security issue, please email security@tokenestate.io.
 
 ## Audit
-As per best practise our code is audited by other independent experts
+As per best practise our code is audited by independent experts
 
 ## Tools
 - [Node.js v8.9.3](https://nodejs.org/) 
