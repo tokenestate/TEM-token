@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Tokenestate/Tokenestate.github.io/master/Tokenestate.io.logo.png" width=500/>
+<img src="https://raw.githubusercontent.com/Tokenestate/Tokenestate.github.io/master/Tokenestate.io.logo.png" href="https://tokenestate.io" width=500/>
 
 # TEM-token
 Smart contract for the "Token Estate" token sale. On top of the standard ERC20 standard, which is the foundation of the TEM-token, we have added a dividend payment reflecting the stake of the token holder
