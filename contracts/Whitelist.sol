@@ -28,7 +28,7 @@ contract Whitelist is Ownable {
     function addToWhitelist(address _beneficiary) external onlyOwner {
         require (_beneficiary != 0x0);
         whitelist[_beneficiary] = true;
-        LogAddToWhilelist(msg.sender, beneficiary);
+        LogAddToWhilelist(msg.sender, _beneficiary);
     }
 
     /**
@@ -37,7 +37,7 @@ contract Whitelist is Ownable {
     */
     function addManyToWhitelist(address[] _beneficiaries) external onlyOwner {
         for (uint256 i = 0; i < _beneficiaries.length; i++) {
-            addToWhitelist(beneficiaries[i]]);
+            this.addToWhitelist(_beneficiaries[i]);
         }
     }
 
@@ -47,7 +47,7 @@ contract Whitelist is Ownable {
     */
     function removeFromWhitelist(address _beneficiary) external onlyOwner {
         whitelist[_beneficiary] = false;
-        LogRemoveFromWhilelist(msg.sender, beneficiary);
+        LogRemoveFromWhilelist(msg.sender, _beneficiary);
     }
 
 }
